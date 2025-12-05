@@ -1,4 +1,4 @@
-choo + css test
+Hydra clipboard template project
 ========
 
-by naoto
+A test project to enable pasting an image from clipboard (iOS kind of works too)
