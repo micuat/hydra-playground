@@ -14,8 +14,10 @@ export default class Map extends Component {
 
     // create a new hydra-synth instance
     const hydraCanvas = element.querySelector("canvas");
-    hydraCanvas.width = 800//window.innerWidth;
-    hydraCanvas.height = 800//window.innerHeight;
+    hydraCanvas.width = window.innerWidth;
+    hydraCanvas.height = window.innerHeight;
+    // hydraCanvas.width = 800//window.innerWidth;
+    // hydraCanvas.height = 800//window.innerHeight;
 
     if (this.state.hydra == undefined) {
       this.state.hydra = new Hydra({

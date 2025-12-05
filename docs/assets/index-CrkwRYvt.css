@@ -566,6 +566,9 @@ video {
 .m-2 {
   margin: 0.5rem;
 }
+.block {
+  display: block;
+}
 .contents {
   display: contents;
 }

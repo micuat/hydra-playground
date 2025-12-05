@@ -4,11 +4,17 @@ export default function(state, emitter) {
   state.showModal = true;
 
   function renderHydra() {
-    src(o0).modulate(gradient().pixelate(2,2).brightness(-.5), -0.1)
-    .layer(s0).out();
+    let mod = () => -1 * state.hydraValues.modulate;
+    let sc = () => state.hydraValues.scale;
+    src(o0).modulate(gradient().pixelate(2,2).brightness(-.5), mod)
+    .layer(src(s0).mask(shape(4,1,0)).scale(sc)).out();
   }
 
   emitter.on("DOMContentLoaded", () => {
+    state.hydraValues = {
+      scale: 0.5,
+      modulate: 0.1
+    }
     renderHydra();
 
     document.onpaste = function (event) {

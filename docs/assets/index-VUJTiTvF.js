@@ -2141,9 +2141,15 @@ const Component = /* @__PURE__ */ getDefaultExportFromCjs(component);
 function machine(state, emitter) {
   state.showModal = true;
   function renderHydra() {
-    src(o0).modulate(gradient().pixelate(2, 2).brightness(-0.5), -0.1).layer(s0).out();
+    let mod = () => -1 * state.hydraValues.modulate;
+    let sc = () => state.hydraValues.scale;
+    src(o0).modulate(gradient().pixelate(2, 2).brightness(-0.5), mod).layer(src(s0).mask(shape(4, 1, 0)).scale(sc)).out();
   }
   emitter.on("DOMContentLoaded", () => {
+    state.hydraValues = {
+      scale: 0.5,
+      modulate: 0.1
+    };
     renderHydra();
     document.onpaste = function(event) {
       var items = (event.clipboardData || event.originalEvent.clipboardData).items;
@@ -6335,60 +6341,60 @@ var regl$1 = { exports: {} };
         }
       }
     }
-    function flattenRec(array, shape, level, out, ptr) {
+    function flattenRec(array, shape2, level, out, ptr) {
       var stride = 1;
-      for (var i = level + 1; i < shape.length; ++i) {
-        stride *= shape[i];
+      for (var i = level + 1; i < shape2.length; ++i) {
+        stride *= shape2[i];
       }
-      var n = shape[level];
-      if (shape.length - level === 4) {
-        var nx = shape[level + 1];
-        var ny = shape[level + 2];
-        var nz = shape[level + 3];
+      var n = shape2[level];
+      if (shape2.length - level === 4) {
+        var nx = shape2[level + 1];
+        var ny = shape2[level + 2];
+        var nz = shape2[level + 3];
         for (i = 0; i < n; ++i) {
           flatten3D(array[i], nx, ny, nz, out, ptr);
           ptr += stride;
         }
       } else {
         for (i = 0; i < n; ++i) {
-          flattenRec(array[i], shape, level + 1, out, ptr);
+          flattenRec(array[i], shape2, level + 1, out, ptr);
           ptr += stride;
         }
       }
     }
-    function flattenArray(array, shape, type, out_) {
+    function flattenArray(array, shape2, type, out_) {
       var sz = 1;
-      if (shape.length) {
-        for (var i = 0; i < shape.length; ++i) {
-          sz *= shape[i];
+      if (shape2.length) {
+        for (var i = 0; i < shape2.length; ++i) {
+          sz *= shape2[i];
         }
       } else {
         sz = 0;
       }
       var out = out_ || pool.allocType(type, sz);
-      switch (shape.length) {
+      switch (shape2.length) {
         case 0:
           break;
         case 1:
-          flatten1D(array, shape[0], out);
+          flatten1D(array, shape2[0], out);
           break;
         case 2:
-          flatten2D(array, shape[0], shape[1], out);
+          flatten2D(array, shape2[0], shape2[1], out);
           break;
         case 3:
-          flatten3D(array, shape[0], shape[1], shape[2], out, 0);
+          flatten3D(array, shape2[0], shape2[1], shape2[2], out, 0);
           break;
         default:
-          flattenRec(array, shape, 0, out, 0);
+          flattenRec(array, shape2, 0, out, 0);
       }
       return out;
     }
     function arrayShape$1(array_) {
-      var shape = [];
+      var shape2 = [];
       for (var array = array_; array.length; array = array[0]) {
-        shape.push(array.length);
+        shape2.push(array.length);
       }
-      return shape;
+      return shape2;
     }
     var arrayTypes = {
       "[object Int8Array]": 5120,
@@ -6497,20 +6503,20 @@ var regl$1 = { exports: {} };
         gl.bufferData(buffer.type, data, usage);
       }
       function initBufferFromData(buffer, data, usage, dtype, dimension, persist) {
-        var shape;
+        var shape2;
         buffer.usage = usage;
         if (Array.isArray(data)) {
           buffer.dtype = dtype || GL_FLOAT$3;
           if (data.length > 0) {
             var flatData;
             if (Array.isArray(data[0])) {
-              shape = arrayShape(data);
+              shape2 = arrayShape(data);
               var dim = 1;
-              for (var i = 1; i < shape.length; ++i) {
-                dim *= shape[i];
+              for (var i = 1; i < shape2.length; ++i) {
+                dim *= shape2[i];
               }
               buffer.dimension = dim;
-              flatData = arrayFlatten(data, shape, buffer.dtype);
+              flatData = arrayFlatten(data, shape2, buffer.dtype);
               initBufferFromTypedArray(buffer, flatData, usage);
               if (persist) {
                 buffer.persistentData = flatData;
@@ -6553,21 +6559,21 @@ var regl$1 = { exports: {} };
             buffer.persistentData = new Uint8Array(new Uint8Array(data.buffer));
           }
         } else if (isNDArrayLike(data)) {
-          shape = data.shape;
+          shape2 = data.shape;
           var stride = data.stride;
           var offset = data.offset;
           var shapeX = 0;
           var shapeY = 0;
           var strideX = 0;
           var strideY = 0;
-          if (shape.length === 1) {
-            shapeX = shape[0];
+          if (shape2.length === 1) {
+            shapeX = shape2[0];
             shapeY = 1;
             strideX = stride[0];
             strideY = 0;
-          } else if (shape.length === 2) {
-            shapeX = shape[0];
-            shapeY = shape[1];
+          } else if (shape2.length === 2) {
+            shapeX = shape2[0];
+            shapeY = shape2[1];
             strideX = stride[0];
             strideY = stride[1];
           } else {
@@ -6679,7 +6685,7 @@ var regl$1 = { exports: {} };
         }
         function subdata(data, offset_) {
           var offset = (offset_ || 0) | 0;
-          var shape;
+          var shape2;
           buffer.bind();
           if (isTypedArray(data) || data instanceof ArrayBuffer) {
             setSubData(data, offset);
@@ -6691,8 +6697,8 @@ var regl$1 = { exports: {} };
                 setSubData(converted, offset);
                 pool.freeType(converted);
               } else if (Array.isArray(data[0]) || isTypedArray(data[0])) {
-                shape = arrayShape(data);
-                var flatData = arrayFlatten(data, shape, buffer.dtype);
+                shape2 = arrayShape(data);
+                var flatData = arrayFlatten(data, shape2, buffer.dtype);
                 setSubData(flatData, offset);
                 pool.freeType(flatData);
               } else {
@@ -6700,20 +6706,20 @@ var regl$1 = { exports: {} };
               }
             }
           } else if (isNDArrayLike(data)) {
-            shape = data.shape;
+            shape2 = data.shape;
             var stride = data.stride;
             var shapeX = 0;
             var shapeY = 0;
             var strideX = 0;
             var strideY = 0;
-            if (shape.length === 1) {
-              shapeX = shape[0];
+            if (shape2.length === 1) {
+              shapeX = shape2[0];
               shapeY = 1;
               strideX = stride[0];
               strideY = 0;
-            } else if (shape.length === 2) {
-              shapeX = shape[0];
-              shapeY = shape[1];
+            } else if (shape2.length === 2) {
+              shapeX = shape2[0];
+              shapeY = shape2[1];
               strideX = stride[0];
               strideY = stride[1];
             } else {
@@ -7684,19 +7690,19 @@ var regl$1 = { exports: {} };
           if (!Array.isArray(array) && image.type === GL_UNSIGNED_BYTE$5) {
             image.type = typedArrayCode$1(array);
           }
-          var shape = data.shape;
+          var shape2 = data.shape;
           var stride = data.stride;
           var shapeX, shapeY, shapeC, strideX, strideY, strideC;
-          if (shape.length === 3) {
-            shapeC = shape[2];
+          if (shape2.length === 3) {
+            shapeC = shape2[2];
             strideC = stride[2];
           } else {
-            check$1(shape.length === 2, "invalid ndarray pixel data, must be 2 or 3D");
+            check$1(shape2.length === 2, "invalid ndarray pixel data, must be 2 or 3D");
             shapeC = 1;
             strideC = 1;
           }
-          shapeX = shape[0];
-          shapeY = shape[1];
+          shapeX = shape2[0];
+          shapeY = shape2[1];
           strideX = stride[0];
           strideY = stride[1];
           image.alignment = 1;
@@ -8620,13 +8626,13 @@ var regl$1 = { exports: {} };
           if (typeof a3 === "object" && a3) {
             var options = a3;
             if ("shape" in options) {
-              var shape = options.shape;
+              var shape2 = options.shape;
               check$1(
-                Array.isArray(shape) && shape.length >= 2,
+                Array.isArray(shape2) && shape2.length >= 2,
                 "invalid renderbuffer shape"
               );
-              w = shape[0] | 0;
-              h = shape[1] | 0;
+              w = shape2[0] | 0;
+              h = shape2[1] | 0;
             } else {
               if ("radius" in options) {
                 w = h = options.radius | 0;
@@ -9062,13 +9068,13 @@ var regl$1 = { exports: {} };
             check$1.type(a2, "object", "invalid arguments for framebuffer");
             var options = a2;
             if ("shape" in options) {
-              var shape = options.shape;
+              var shape2 = options.shape;
               check$1(
-                Array.isArray(shape) && shape.length >= 2,
+                Array.isArray(shape2) && shape2.length >= 2,
                 "invalid shape for framebuffer"
               );
-              width = shape[0];
-              height = shape[1];
+              width = shape2[0];
+              height = shape2[1];
             } else {
               if ("radius" in options) {
                 width = height = options.radius;
@@ -9361,16 +9367,16 @@ var regl$1 = { exports: {} };
             check$1.type(a2, "object", "invalid arguments for framebuffer");
             var options2 = a2;
             if ("shape" in options2) {
-              var shape = options2.shape;
+              var shape2 = options2.shape;
               check$1(
-                Array.isArray(shape) && shape.length >= 2,
+                Array.isArray(shape2) && shape2.length >= 2,
                 "invalid shape for framebuffer"
               );
               check$1(
-                shape[0] === shape[1],
+                shape2[0] === shape2[1],
                 "cube framebuffer must be square"
               );
-              radius = shape[0];
+              radius = shape2[0];
             } else {
               if ("radius" in options2) {
                 radius = options2.radius | 0;
@@ -15060,8 +15066,8 @@ class Map extends Component {
   load(element) {
     console.log("loading hydra", element, this.canvas);
     const hydraCanvas = element.querySelector("canvas");
-    hydraCanvas.width = 800;
-    hydraCanvas.height = 800;
+    hydraCanvas.width = window.innerWidth;
+    hydraCanvas.height = window.innerHeight;
     if (this.state.hydra == void 0) {
       this.state.hydra = new HydraRenderer({
         canvas: hydraCanvas,
@@ -15113,10 +15119,29 @@ function main(state, emit) {
         <button class="text-xl" onclick=${hideModal}>❎</button>
         <div class="font-bold">ctrl+v or press below to paste image</div>
         <input class="border-2 border-black" type="text">
-        <button class="border-2 border-black" onclick=${pasteImage}>paste</button>
+        <button class="border-2 border-black block" onclick=${pasteImage}>paste</button>
+        <label>scale</label>
+        <input
+          type="range" class="block" id="slider-scale" oninput="${sliderInput}"
+          min="0" max="100" value="50" step="1" />
+        <label>modulate</label>
+        <input
+          type="range" class="block" id="slider-modulate" oninput="${sliderInput}"
+          min="0" max="100" value="50" step="1" />
       </div>
     </div>
   `;
+  function sliderInput(e) {
+    console.log(e.target);
+    switch (e.target.id) {
+      case "slider-scale":
+        state.hydraValues.scale = e.target.value * 0.01;
+        break;
+      case "slider-modulate":
+        state.hydraValues.modulate = e.target.value * 0.01;
+        break;
+    }
+  }
   function question(e) {
     e.preventDefault();
     state.showModal = !state.showModal;
