@@ -18,6 +18,9 @@ export default class Map extends Component {
     hydraCanvas.height = window.innerHeight;
     // hydraCanvas.width = 800//window.innerWidth;
     // hydraCanvas.height = 800//window.innerHeight;
+    hydraCanvas.getContext("webgl", {
+      preserveDrawingBuffer: true
+    });
 
     if (this.state.hydra == undefined) {
       this.state.hydra = new Hydra({
@@ -29,6 +32,11 @@ export default class Map extends Component {
     } else {
       // hydra = this.state.hydra;
     }
+  }
+
+  download(e) {
+    var dt = this.state.hydra.canvas.toDataURL('image/png');
+    e.currentTarget.href = dt;
   }
 
   update() {

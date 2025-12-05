@@ -19,19 +19,19 @@ export default function(state, emitter) {
 
     document.onpaste = function (event) {
       var items = (event.clipboardData || event.originalEvent.clipboardData).items;
-      console.log(JSON.stringify(items)); // might give you mime types
+      // console.log(JSON.stringify(items)); // might give you mime types
       for (var index in items) {
           var item = items[index];
           if (item.kind === 'file') {
               var blob = item.getAsFile();
               var reader = new FileReader();
               reader.onload = function (event) {
-                  console.log(event.target.result); // data url!
+                  // console.log(event.target.result); // data url!
 
                   let img = new Image();
                   img.src = event.target.result;
                   img.onload = function(e) {
-                    console.log(e)
+                    // console.log(e)
                     s0.init({ src: img });
                   };
               }; 

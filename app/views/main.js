@@ -15,7 +15,7 @@ async function pasteImage(e) {
       let img = new Image();
       img.src = URL.createObjectURL(blob);
       img.onload = function(e) {
-        console.log(e)
+        // console.log(e)
         s0.init({ src: img });
       }
     }
@@ -37,21 +37,25 @@ export default function(state, emit) {
         <button class="text-xl" onclick=${ hideModal }>❎</button>
         <div class="font-bold">ctrl+v or press below to paste image</div>
         <input class="border-2 border-black" type="text">
-        <button class="border-2 border-black block" onclick=${ pasteImage }>paste</button>
-        <label>scale</label>
-        <input
-          type="range" class="block" id="slider-scale" oninput="${ sliderInput }"
-          min="0" max="100" value="50" step="1" />
-        <label>modulate</label>
-        <input
-          type="range" class="block" id="slider-modulate" oninput="${ sliderInput }"
-          min="0" max="100" value="50" step="1" />
+        <button class="border-2 border-black" onclick=${ pasteImage }>paste</button>
+        <div>
+          <label>scale</label>
+          <input
+            type="range" class="" id="slider-scale" oninput="${ sliderInput }"
+            min="0" max="100" value="50" step="1" />
+        </div>
+        <div>
+          <label>modulate</label>
+          <input
+            type="range" class="" id="slider-modulate" oninput="${ sliderInput }"
+            min="0" max="100" value="50" step="1" />
+        </div>
+          <a id="downloadLnk" class="border-2 border-black" download="hydra-playground.png" onclick="${ download }">Capture</a>
       </div>
     </div>
   `;
 
   function sliderInput(e) {
-    console.log(e.target)
     switch (e.target.id) {
       case "slider-scale":
         state.hydraValues.scale = e.target.value * 0.01;
@@ -60,6 +64,10 @@ export default function(state, emit) {
         state.hydraValues.modulate = e.target.value * 0.01;
         break;
     }
+  }
+
+  function download(e) {
+    state.cache(HydraCanvas, 'my-hydra').download(e);
   }
 
   function question(e) {
