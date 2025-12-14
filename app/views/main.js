@@ -38,32 +38,27 @@ export default function(state, emit) {
         <div class="font-bold">ctrl+v or press below to paste image</div>
         <input class="border-2 border-black" type="text">
         <button class="border-2 border-black" onclick=${ pasteImage }>paste</button>
-        <div>
-          <label>scale</label>
-          <input
-            type="range" class="" id="slider-scale" oninput="${ sliderInput }"
-            min="0" max="100" value="50" step="1" />
+        <div class="flex flex-col items-end">
+          ${
+            Object.keys(state.hydraValues).map(key =>
+              html`
+              <div>
+                <label>${ state.hydraValues[key].name }</label>
+                <input
+                  type="range" class="" id="slider-${ key }" oninput="${ sliderInput }"
+                  min="0" max="100" value="${ state.hydraValues[key].default * 100 }" step="1" />
+              </div>`
+            )
+          }
         </div>
-        <div>
-          <label>modulate</label>
-          <input
-            type="range" class="" id="slider-modulate" oninput="${ sliderInput }"
-            min="0" max="100" value="50" step="1" />
-        </div>
-          <a id="downloadLnk" class="border-2 border-black" download="hydra-playground.png" onclick="${ download }">Capture</a>
+        <a id="downloadLnk" class="border-2 border-black" download="hydra-playground.png" onclick="${ download }">Capture</a>
       </div>
     </div>
   `;
 
   function sliderInput(e) {
-    switch (e.target.id) {
-      case "slider-scale":
-        state.hydraValues.scale = e.target.value * 0.01;
-        break;
-      case "slider-modulate":
-        state.hydraValues.modulate = e.target.value * 0.01;
-        break;
-    }
+    const key = e.target.id.split("-")[1];
+    state.hydraValues[key].value = e.target.value * 0.01;
   }
 
   function download(e) {

@@ -2140,16 +2140,36 @@ var component = nanocomponent;
 const Component = /* @__PURE__ */ getDefaultExportFromCjs(component);
 function machine(state, emitter) {
   state.showModal = true;
+  state.hydraValues = {
+    scale: {
+      value: 0.5,
+      default: 0.5,
+      name: "Scale",
+      func: function() {
+        return state.hydraValues.scale.value;
+      }
+    },
+    modulate: {
+      value: 0.5,
+      default: 0.5,
+      name: "Modulate",
+      func: function() {
+        return state.hydraValues.modulate.value * -1;
+      }
+    },
+    modulateOsc: {
+      value: 0,
+      default: 0,
+      name: "Mod OSC",
+      func: function() {
+        return state.hydraValues.modulateOsc.value * 0.2;
+      }
+    }
+  };
   function renderHydra() {
-    let mod = () => -1 * state.hydraValues.modulate;
-    let sc = () => state.hydraValues.scale;
-    src(o0).modulate(gradient().pixelate(2, 2).brightness(-0.5), mod).layer(src(s0).mask(shape(4, 1, 0)).scale(sc)).out();
+    src(o0).modulate(gradient().pixelate(2, 2).brightness(-0.5), state.hydraValues.modulate.func).modulate(osc(6, 0).brightness(-0.5), state.hydraValues.modulateOsc.func).layer(src(s0).mask(shape(4, 1, 0)).scale(state.hydraValues.scale.func)).out();
   }
   emitter.on("DOMContentLoaded", () => {
-    state.hydraValues = {
-      scale: 0.5,
-      modulate: 0.1
-    };
     renderHydra();
     document.onpaste = function(event) {
       var items = (event.clipboardData || event.originalEvent.clipboardData).items;
@@ -15123,31 +15143,24 @@ function main(state, emit) {
         <div class="font-bold">ctrl+v or press below to paste image</div>
         <input class="border-2 border-black" type="text">
         <button class="border-2 border-black" onclick=${pasteImage}>paste</button>
-        <div>
-          <label>scale</label>
-          <input
-            type="range" class="" id="slider-scale" oninput="${sliderInput}"
-            min="0" max="100" value="50" step="1" />
+        <div class="flex flex-col items-end">
+          ${Object.keys(state.hydraValues).map(
+    (key) => html$1`
+              <div>
+                <label>${state.hydraValues[key].name}</label>
+                <input
+                  type="range" class="" id="slider-${key}" oninput="${sliderInput}"
+                  min="0" max="100" value="${state.hydraValues[key].default * 100}" step="1" />
+              </div>`
+  )}
         </div>
-        <div>
-          <label>modulate</label>
-          <input
-            type="range" class="" id="slider-modulate" oninput="${sliderInput}"
-            min="0" max="100" value="50" step="1" />
-        </div>
-          <a id="downloadLnk" class="border-2 border-black" download="hydra-playground.png" onclick="${download}">Capture</a>
+        <a id="downloadLnk" class="border-2 border-black" download="hydra-playground.png" onclick="${download}">Capture</a>
       </div>
     </div>
   `;
   function sliderInput(e) {
-    switch (e.target.id) {
-      case "slider-scale":
-        state.hydraValues.scale = e.target.value * 0.01;
-        break;
-      case "slider-modulate":
-        state.hydraValues.modulate = e.target.value * 0.01;
-        break;
-    }
+    const key = e.target.id.split("-")[1];
+    state.hydraValues[key].value = e.target.value * 0.01;
   }
   function download(e) {
     state.cache(Map, "my-hydra").download(e);
