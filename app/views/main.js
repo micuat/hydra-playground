@@ -51,6 +51,11 @@ export default function(state, emit) {
             )
           }
         </div>
+        <div>
+          <button class="border-2 border-black" onclick=${ play }>▶️</button>
+          <button class="border-2 border-black" onclick=${ pause }>⏸️</button>
+          <button class="border-2 border-black" onclick=${ next }>⏭️</button>
+        </div>
         <a id="downloadLnk" class="border-2 border-black" download="hydra-playground.png" onclick="${ download }">Capture</a>
       </div>
     </div>
@@ -63,6 +68,18 @@ export default function(state, emit) {
 
   function download(e) {
     state.cache(HydraCanvas, 'my-hydra').download(e);
+  }
+
+  function play(e) {
+    state.cache(HydraCanvas, 'my-hydra').play();
+  }
+
+  function pause(e) {
+    state.cache(HydraCanvas, 'my-hydra').pause();
+  }
+
+  function next(e) {
+    state.cache(HydraCanvas, 'my-hydra').nextFrame();
   }
 
   function question(e) {

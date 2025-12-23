@@ -15079,6 +15079,7 @@ class Map extends Component {
     super(id);
     this.local = state.components[id] = {};
     this.state = state;
+    this.playing = true;
   }
   load(element) {
     console.log("loading hydra", element, this.canvas);
@@ -15093,8 +15094,36 @@ class Map extends Component {
         canvas: hydraCanvas,
         detectAudio: false,
         width: hydraCanvas.width,
-        height: hydraCanvas.height
+        height: hydraCanvas.height,
+        autoLoop: false
       });
+      window.requestAnimationFrame(() => {
+        this.draw();
+      });
+    }
+  }
+  draw() {
+    if (this.playing != false) {
+      this.state.hydra.tick(1 / 30);
+      window.requestAnimationFrame(() => {
+        this.draw();
+      });
+    }
+  }
+  play() {
+    if (this.playing == false) {
+      this.playing = true;
+      window.requestAnimationFrame(() => {
+        this.draw();
+      });
+    }
+  }
+  pause() {
+    this.playing = false;
+  }
+  nextFrame() {
+    if (this.playing == false) {
+      this.state.hydra.tick(1 / 30);
     }
   }
   download(e) {
@@ -15154,6 +15183,11 @@ function main(state, emit) {
               </div>`
   )}
         </div>
+        <div>
+          <button class="border-2 border-black" onclick=${play}>▶️</button>
+          <button class="border-2 border-black" onclick=${pause}>⏸️</button>
+          <button class="border-2 border-black" onclick=${next}>⏭️</button>
+        </div>
         <a id="downloadLnk" class="border-2 border-black" download="hydra-playground.png" onclick="${download}">Capture</a>
       </div>
     </div>
@@ -15164,6 +15198,15 @@ function main(state, emit) {
   }
   function download(e) {
     state.cache(Map, "my-hydra").download(e);
+  }
+  function play(e) {
+    state.cache(Map, "my-hydra").play();
+  }
+  function pause(e) {
+    state.cache(Map, "my-hydra").pause();
+  }
+  function next(e) {
+    state.cache(Map, "my-hydra").nextFrame();
   }
   function question(e) {
     e.preventDefault();

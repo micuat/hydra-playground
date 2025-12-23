@@ -7,6 +7,7 @@ export default class Map extends Component {
     super(id);
     this.local = state.components[id] = {};
     this.state = state;
+    this.playing = true;
   }
 
   load(element) {
@@ -27,10 +28,43 @@ export default class Map extends Component {
         canvas: hydraCanvas,
         detectAudio: false,
         width: hydraCanvas.width,
-        height: hydraCanvas.height
+        height: hydraCanvas.height,
+        autoLoop: false,
+      });
+
+      window.requestAnimationFrame(() => {
+        this.draw();
       });
     } else {
       // hydra = this.state.hydra;
+    }
+  }
+
+  draw() {
+    if (this.playing != false) {
+      this.state.hydra.tick(1/30);
+      window.requestAnimationFrame(() => {
+        this.draw();
+      });
+    }
+  }
+
+  play() {
+    if (this.playing == false) {
+      this.playing = true;
+      window.requestAnimationFrame(() => {
+        this.draw();
+      });
+    }
+  }
+
+  pause () {
+    this.playing = false;
+  }
+
+  nextFrame() {
+    if (this.playing == false) {
+      this.state.hydra.tick(1/30);
     }
   }
 
