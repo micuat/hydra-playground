@@ -2138,59 +2138,6 @@ Nanocomponent.prototype.update = function() {
 };
 var component = nanocomponent;
 const Component = /* @__PURE__ */ getDefaultExportFromCjs(component);
-function machine(state, emitter) {
-  state.showModal = true;
-  state.hydraValues = {
-    scale: {
-      value: 0.5,
-      default: 0.5,
-      name: "Scale",
-      func: function() {
-        return state.hydraValues.scale.value;
-      }
-    },
-    modulate: {
-      value: 0.5,
-      default: 0.5,
-      name: "Modulate",
-      func: function() {
-        return state.hydraValues.modulate.value * -1;
-      }
-    },
-    modulateOsc: {
-      value: 0,
-      default: 0,
-      name: "Mod OSC",
-      func: function() {
-        return state.hydraValues.modulateOsc.value * 0.2;
-      }
-    }
-  };
-  function renderHydra() {
-    src(o0).modulate(gradient().pixelate(2, 2).brightness(-0.5), state.hydraValues.modulate.func).modulate(osc(6, 0).brightness(-0.5), state.hydraValues.modulateOsc.func).layer(src(s0).mask(shape(4, 1, 0)).scale(state.hydraValues.scale.func)).out();
-  }
-  emitter.on("DOMContentLoaded", () => {
-    renderHydra();
-    document.onpaste = function(event) {
-      var items = (event.clipboardData || event.originalEvent.clipboardData).items;
-      for (var index in items) {
-        var item = items[index];
-        if (item.kind === "file") {
-          var blob = item.getAsFile();
-          var reader = new FileReader();
-          reader.onload = function(event2) {
-            let img = new Image();
-            img.src = event2.target.result;
-            img.onload = function(e) {
-              s0.init({ src: img });
-            };
-          };
-          reader.readAsDataURL(blob);
-        }
-      }
-    };
-  });
-}
 var Output = function({ regl: regl2, precision, label = "", width, height }) {
   this.regl = regl2;
   this.precision = precision;
@@ -15102,6 +15049,9 @@ class Map extends Component {
       });
     }
   }
+  evalCode() {
+    src(o0).modulate(gradient().pixelate(2, 2).brightness(-0.5), this.state.hydraValues.modulate.func).modulate(osc(6, 0).brightness(-0.5), this.state.hydraValues.modulateOsc.func).layer(src(s0).mask(shape(4, 1, 0)).scale(this.state.hydraValues.scale.func)).out();
+  }
   draw() {
     if (this.playing != false) {
       this.state.hydra.tick(1 / 30);
@@ -15126,9 +15076,39 @@ class Map extends Component {
       this.state.hydra.tick(1 / 30);
     }
   }
-  download(e) {
+  clear() {
+    solid(0, 0, 0, 0).out();
+    if (this.playing == false) {
+      this.state.hydra.tick(1 / 30);
+    }
+    setTimeout(() => {
+      this.evalCode();
+    }, 500);
+  }
+  async download(e) {
     var dt = this.state.hydra.canvas.toDataURL("image/png");
     e.currentTarget.href = dt;
+  }
+  async copy() {
+    async function getBlobFromCanvas(canvas) {
+      return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          if (blob) {
+            resolve(blob);
+          } else {
+            reject(new Error("Canvas toBlob failed"));
+          }
+        });
+      });
+    }
+    try {
+      const blob = await getBlobFromCanvas(this.state.hydra.canvas);
+      const data = [new ClipboardItem({ [blob.type]: blob })];
+      await navigator.clipboard.write(data);
+      console.log("Copied");
+    } catch (error) {
+      console.log(error);
+    }
   }
   update() {
     return false;
@@ -15140,6 +15120,56 @@ class Map extends Component {
       </div>
     `;
   }
+}
+function machine(state, emitter) {
+  state.showModal = true;
+  state.hydraValues = {
+    scale: {
+      value: 0.5,
+      default: 0.5,
+      name: "Scale",
+      func: function() {
+        return state.hydraValues.scale.value;
+      }
+    },
+    modulate: {
+      value: 0.5,
+      default: 0.5,
+      name: "Modulate",
+      func: function() {
+        return state.hydraValues.modulate.value * -1;
+      }
+    },
+    modulateOsc: {
+      value: 0,
+      default: 0,
+      name: "Mod OSC",
+      func: function() {
+        return state.hydraValues.modulateOsc.value * 0.2;
+      }
+    }
+  };
+  emitter.on("DOMContentLoaded", () => {
+    state.cache(Map, "my-hydra").evalCode();
+    document.onpaste = function(event) {
+      var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+      for (var index in items) {
+        var item = items[index];
+        if (item.kind === "file") {
+          var blob = item.getAsFile();
+          var reader = new FileReader();
+          reader.onload = function(event2) {
+            let img = new Image();
+            img.src = event2.target.result;
+            img.onload = function(e) {
+              s0.init({ src: img });
+            };
+          };
+          reader.readAsDataURL(blob);
+        }
+      }
+    };
+  });
 }
 async function pasteImage(e) {
   try {
@@ -15187,8 +15217,10 @@ function main(state, emit) {
           <button class="border-2 border-black" onclick=${play}>▶️</button>
           <button class="border-2 border-black" onclick=${pause}>⏸️</button>
           <button class="border-2 border-black" onclick=${next}>⏭️</button>
+          <button class="border-2 border-black" onclick=${clear}>❌</button>
         </div>
-        <a id="downloadLnk" class="border-2 border-black" download="hydra-playground.png" onclick="${download}">Capture</a>
+        <a id="downloadLnk" class="border-2 border-black" download="hydra-playground.png" onclick="${download}">Download</a>
+        <a id="downloadLnk" class="border-2 border-black" onclick="${copy}">Copy</a>
       </div>
     </div>
   `;
@@ -15199,6 +15231,9 @@ function main(state, emit) {
   function download(e) {
     state.cache(Map, "my-hydra").download(e);
   }
+  function copy() {
+    state.cache(Map, "my-hydra").copy();
+  }
   function play(e) {
     state.cache(Map, "my-hydra").play();
   }
@@ -15207,6 +15242,9 @@ function main(state, emit) {
   }
   function next(e) {
     state.cache(Map, "my-hydra").nextFrame();
+  }
+  function clear(e) {
+    state.cache(Map, "my-hydra").clear();
   }
   function question(e) {
     e.preventDefault();

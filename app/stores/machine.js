@@ -1,4 +1,5 @@
 import TextTweenElement from "../components/text-tween-element.js";
+import HydraCanvas from "../components/hydra-canvas.js";
 
 export default function(state, emitter) {
   state.showModal = true;
@@ -23,14 +24,8 @@ export default function(state, emitter) {
     },
   }
 
-  function renderHydra() {
-    src(o0).modulate(gradient().pixelate(2,2).brightness(-.5), state.hydraValues.modulate.func)
-    .modulate(osc(6,0).brightness(-.5),state.hydraValues.modulateOsc.func)
-    .layer(src(s0).mask(shape(4,1,0)).scale(state.hydraValues.scale.func)).out();
-  }
-
   emitter.on("DOMContentLoaded", () => {
-    renderHydra();
+    state.cache(HydraCanvas, 'my-hydra').evalCode();
 
     document.onpaste = function (event) {
       var items = (event.clipboardData || event.originalEvent.clipboardData).items;
