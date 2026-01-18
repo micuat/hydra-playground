@@ -15050,7 +15050,7 @@ class Map extends Component {
     }
   }
   evalCode() {
-    src(o0).modulate(gradient().pixelate(2, 2).brightness(-0.5), this.state.hydraValues.modulate.func).modulate(osc(6, 0).brightness(-0.5), this.state.hydraValues.modulateOsc.func).layer(src(s0).mask(shape(4, 1, 0)).scale(this.state.hydraValues.scale.func)).out();
+    src(o0).rotate(this.state.hydraValues.rotate.func).modulate(gradient().pixelate(2, 2).brightness(-0.5), this.state.hydraValues.modulate.func).modulate(osc(6, 0, 1.6).brightness(-0.5).modulate(noise(this.state.hydraValues.modulateNoiseFreq.func, 0).sub(gradient()), 1), this.state.hydraValues.modulateNoiseAmount.func).modulate(osc(6, 0).brightness(-0.5), this.state.hydraValues.modulateOsc.func).layer(src(s0).mask(shape(4, 1, 0)).scale(this.state.hydraValues.scale.func)).out();
   }
   draw() {
     if (this.playing != false) {
@@ -15140,6 +15140,14 @@ function machine(state, emitter) {
         return state.hydraValues.modulate.value * -1;
       }
     },
+    rotate: {
+      value: 0.5,
+      default: 0.5,
+      name: "Rotate",
+      func: function() {
+        return (state.hydraValues.rotate.value - 0.5) * 1;
+      }
+    },
     modulateOsc: {
       value: 0,
       default: 0,
@@ -15147,8 +15155,30 @@ function machine(state, emitter) {
       func: function() {
         return state.hydraValues.modulateOsc.value * 0.2;
       }
+    },
+    modulateNoiseFreq: {
+      value: 0,
+      default: 0,
+      name: "Noise Freq",
+      func: function() {
+        return state.hydraValues.modulateNoiseFreq.value * 10;
+      }
+    },
+    modulateNoiseAmount: {
+      value: 0,
+      default: 0,
+      name: "Noise Amt",
+      func: function() {
+        return state.hydraValues.modulateNoiseAmount.value * 0.05;
+      }
     }
   };
+  emitter.on("reset", () => {
+    Object.keys(state.hydraValues).map((key) => {
+      state.hydraValues[key].value = state.hydraValues[key].default;
+    });
+    emitter.emit("render");
+  });
   emitter.on("DOMContentLoaded", () => {
     state.cache(Map, "my-hydra").evalCode();
     document.onpaste = function(event) {
@@ -15220,7 +15250,8 @@ function main(state, emit) {
           <button class="border-2 border-black" onclick=${clear}>❌</button>
         </div>
         <a id="downloadLnk" class="border-2 border-black" download="hydra-playground.png" onclick="${download}">Download</a>
-        <a id="downloadLnk" class="border-2 border-black" onclick="${copy}">Copy</a>
+        <a class="border-2 border-black" onclick="${copy}">Copy</a>
+        <a class="border-2 border-black" onclick="${reset}">Reset</a>
       </div>
     </div>
   `;
@@ -15233,6 +15264,9 @@ function main(state, emit) {
   }
   function copy() {
     state.cache(Map, "my-hydra").copy();
+  }
+  function reset() {
+    emit("reset");
   }
   function play(e) {
     state.cache(Map, "my-hydra").play();

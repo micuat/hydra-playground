@@ -58,7 +58,8 @@ export default function(state, emit) {
           <button class="border-2 border-black" onclick=${ clear }>❌</button>
         </div>
         <a id="downloadLnk" class="border-2 border-black" download="hydra-playground.png" onclick="${ download }">Download</a>
-        <a id="downloadLnk" class="border-2 border-black" onclick="${ copy }">Copy</a>
+        <a class="border-2 border-black" onclick="${ copy }">Copy</a>
+        <a class="border-2 border-black" onclick="${ reset }">Reset</a>
       </div>
     </div>
   `;
@@ -74,6 +75,10 @@ export default function(state, emit) {
 
   function copy() {
     state.cache(HydraCanvas, 'my-hydra').copy();
+  }
+
+  function reset() {
+    emit('reset');
   }
 
   function play(e) {

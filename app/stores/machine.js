@@ -16,13 +16,38 @@ export default function(state, emitter) {
       name: "Modulate",
       func: function() { return state.hydraValues.modulate.value * -1 }
     },
+    rotate: {
+      value: 0.5,
+      default: 0.5,
+      name: "Rotate",
+      func: function() { return (state.hydraValues.rotate.value - 0.5) * 1 }
+    },
     modulateOsc: {
       value: 0,
       default: 0,
       name: "Mod OSC",
       func: function() { return state.hydraValues.modulateOsc.value * 0.2 }
     },
+    modulateNoiseFreq: {
+      value: 0,
+      default: 0,
+      name: "Noise Freq",
+      func: function() { return state.hydraValues.modulateNoiseFreq.value * 10 }
+    },
+    modulateNoiseAmount: {
+      value: 0,
+      default: 0,
+      name: "Noise Amt",
+      func: function() { return state.hydraValues.modulateNoiseAmount.value * 0.05 }
+    },
   }
+
+  emitter.on("reset", () => {
+    Object.keys(state.hydraValues).map(key => {
+      state.hydraValues[key].value = state.hydraValues[key].default;
+    })
+    emitter.emit('render');
+  });
 
   emitter.on("DOMContentLoaded", () => {
     state.cache(HydraCanvas, 'my-hydra').evalCode();
