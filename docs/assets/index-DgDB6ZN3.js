@@ -15050,7 +15050,10 @@ class Map extends Component {
     }
   }
   evalCode() {
-    src(o0).rotate(this.state.hydraValues.rotate.func).modulate(gradient().pixelate(2, 2).brightness(-0.5), this.state.hydraValues.modulate.func).modulate(osc(6, 0, 1.6).brightness(-0.5).modulate(noise(this.state.hydraValues.modulateNoiseFreq.func, 0).sub(gradient()), 1), this.state.hydraValues.modulateNoiseAmount.func).modulate(osc(6, 0).brightness(-0.5), this.state.hydraValues.modulateOsc.func).layer(src(s0).mask(shape(4, 1, 0)).scale(this.state.hydraValues.scale.func)).out();
+    src(o0).rotate(this.state.hydraValues.rotate.func).modulate(gradient().pixelate(2, 2).brightness(-0.5), this.state.hydraValues.modulate.func).modulate(osc(6, 0, 1.6).brightness(-0.5).modulate(
+      noise(this.state.hydraValues.modulateNoiseFreq.func, 0).pixelate(this.state.hydraValues.modulateNoisePix.func, this.state.hydraValues.modulateNoisePix.func).sub(gradient()),
+      1
+    ), this.state.hydraValues.modulateNoiseAmount.func).modulate(osc(6, 0).brightness(-0.5), this.state.hydraValues.modulateOsc.func).layer(src(s0).mask(shape(4, 1, 0)).scale(this.state.hydraValues.scale.func)).out();
   }
   draw() {
     if (this.playing != false) {
@@ -15170,6 +15173,14 @@ function machine(state, emitter) {
       name: "Noise Amt",
       func: function() {
         return state.hydraValues.modulateNoiseAmount.value * 0.05;
+      }
+    },
+    modulateNoisePix: {
+      value: 1,
+      default: 1,
+      name: "Noise Pix",
+      func: function() {
+        return Math.pow(2, 11 * state.hydraValues.modulateNoisePix.value);
       }
     }
   };
