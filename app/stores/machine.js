@@ -38,7 +38,7 @@ export default function(state, emitter) {
       value: 0,
       default: 0,
       name: "Noise Amt",
-      func: function() { return state.hydraValues.modulateNoiseAmount.value * 0.05 }
+      func: function() { return state.hydraValues.modulateNoiseAmount.value * 0.2 }
     },
     modulateNoisePix: {
       value: 1,
