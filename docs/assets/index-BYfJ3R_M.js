@@ -15031,8 +15031,8 @@ class Map extends Component {
   load(element) {
     console.log("loading hydra", element, this.canvas);
     const hydraCanvas = element.querySelector("canvas");
-    hydraCanvas.width = window.innerWidth;
-    hydraCanvas.height = window.innerHeight;
+    hydraCanvas.width = 2752;
+    hydraCanvas.height = 2064;
     hydraCanvas.getContext("webgl", {
       preserveDrawingBuffer: true
     });

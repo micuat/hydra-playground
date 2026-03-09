@@ -15,8 +15,8 @@ export default class Map extends Component {
 
     // create a new hydra-synth instance
     const hydraCanvas = element.querySelector("canvas");
-    hydraCanvas.width = window.innerWidth;
-    hydraCanvas.height = window.innerHeight;
+    hydraCanvas.width = 2752//screen.width;
+    hydraCanvas.height = 2064//screen.height;
     // hydraCanvas.width = 800//window.innerWidth;
     // hydraCanvas.height = 800//window.innerHeight;
     hydraCanvas.getContext("webgl", {
