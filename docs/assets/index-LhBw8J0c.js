@@ -15172,7 +15172,7 @@ function machine(state, emitter) {
       default: 0,
       name: "Noise Amt",
       func: function() {
-        return state.hydraValues.modulateNoiseAmount.value * 0.05;
+        return state.hydraValues.modulateNoiseAmount.value * 0.2;
       }
     },
     modulateNoisePix: {
